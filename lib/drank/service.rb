@@ -24,7 +24,7 @@ module Drank
       loop do
         Drank::Log.info("Lurkin' for containers ...")
 
-        # loop through containers on this host creating zk sessions for each session
+        # loop through containers on this host creating zk sessions for each container
         containers = Drank::Docker.get_containers()
 
         current_containers = []

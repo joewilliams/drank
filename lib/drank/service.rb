@@ -2,9 +2,14 @@ module Drank
   class Service
 
     def self.run()
+      @hostname = Socket.gethostbyname(Socket.gethostname).first.gsub(".", "_")
+      @service_zk_path =File.join(Drank::Config.zk_prefix, "services")
+      @container_host_zk_path = File.join(Drank::Config.zk_prefix, "container-hosts")
+
       Drank::Log.info("URI: #{Drank::Config.uri}")
       Drank::Log.info("ZK: #{Drank::Config.zookeeper}")
       Drank::Log.info("Interval: #{Drank::Config.interval}")
+      Drank::Log.info("Hostname: #{@hostname}")
 
       zk_container_host_session = Zookeeper.new(Drank::Config.zookeeper)
 
@@ -18,6 +23,7 @@ module Drank
 
       loop do
         Drank::Log.info("Lurkin' for containers ...")
+
         # loop through containers on this host creating zk sessions for each session
         containers = Drank::Docker.get_containers()
 
@@ -29,10 +35,11 @@ module Drank
 
             begin
               cntr_sess = Zookeeper.new(Drank::Config.zookeeper)
-              create_container(cntr_sess, cntr["Id"]) # sets initial data too
+              create_container(cntr_sess, cntr["Id"]) # sets data too
               container_sessions.store(cntr["Id"], cntr_sess) # finally store the session for use later
             rescue Exception => e
               Drank::Log.error("Could not create session for #{cntr["Id"]}")
+              raise
             end
           end
 
@@ -54,6 +61,7 @@ module Drank
         end
 
         Drank::Log.info("Live sessions #{container_sessions.keys}")
+
         # chill
         sleep(Drank::Config.interval)
       end
@@ -64,8 +72,8 @@ module Drank
       Drank::Log.info("Initializing ZooKeeper ...")
 
       # create nodes for container hosts and services
-      Drank::ZK.create(session, {:path => File.join(Drank::Config.zk_prefix, "container-hosts"), :recursive => true})
-      Drank::ZK.create(session, {:path => File.join(Drank::Config.zk_prefix, "services"), :recursive => true})
+      Drank::ZK.create(session, {:path => @container_host_zk_path, :recursive => true})
+      Drank::ZK.create(session, {:path => @service_zk_path, :recursive => true})
     end
 
     def self.create_container_host(session)
@@ -84,11 +92,19 @@ module Drank
 
       # create service path if needed
       Drank::ZK.create(session, {
-        :path => File.join(Drank::Config.zk_prefix, "services", get_container_service(data))
+        :path => File.join(@service_zk_path, get_container_service(data))
+      })
+
+      service_path = File.join(@service_zk_path, get_container_service(data), @hostname)
+
+      Drank::ZK.create(session, {
+        :path => service_path
       })
 
       begin
-        path = get_container_zk_path(data)
+        path = get_container_zk_path(service_path, data)
+
+        puts path
 
         Drank::ZK.create(session, {
           :path => path,
@@ -104,14 +120,14 @@ module Drank
 
     def self.get_container_host_zk_path
       hostname = Socket.gethostname
-      File.join(Drank::Config.zk_prefix, "container-hosts", hostname)
+      File.join(@container_host_zk_path, @hostname)
     end
 
-    def self.get_container_zk_path(data)
+    def self.get_container_zk_path(service_path, data)
       service = get_container_service(data)
       serial = get_container_serial_number(data)
 
-      File.join(Drank::Config.zk_prefix, "services", service, serial)
+      File.join(service_path, data["ID"])
     end
 
     def self.get_container_host_data
@@ -151,8 +167,6 @@ module Drank
         serial
       end
     end
-
-
 
   end
 end

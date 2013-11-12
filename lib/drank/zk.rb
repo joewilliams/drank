@@ -43,17 +43,6 @@ module Drank
           raise("Could not create #{options[:path]} with #{options}")
         end
       end
-
-    end
-
-    def self.set(session, options)
-      result = session.set(options)
-      Drank::Log.info("Set data at #{options[:path]}")
-      Drank::Log.debug(result)
-
-      if result[:stat].exists == false
-        raise("Could not set #{options[:path]} with #{options}")
-      end
     end
 
   end

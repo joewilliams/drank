@@ -18,7 +18,7 @@ module Drank
     option :interval,
       :short => "-i SECONDS",
       :long => "--interval SECONDS",
-      :default => 5,
+      :default => 2,
       :description => "The amount of time in seconds that Drank will read from Docker and send a pulse to Zookeeper"
 
     option :zookeeper,

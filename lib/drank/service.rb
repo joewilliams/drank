@@ -79,32 +79,31 @@ module Drank
     def self.create_container_host(session)
       # create container host path
       Drank::ZK.create(session, {
-        :path => get_container_host_zk_path(),
+        :path => Drank::Utils.get_container_host_zk_path(@container_host_zk_path, @hostname),
         :recursive => true,
         :ephemeral => true,
-        :data => get_container_host_data().to_json
+        :data => Drank::Docker.get_version().to_json
       })
     end
 
     def self.create_container(session, id)
       # create service/container path
       data = Drank::Docker.get_container(id)
+      service_name = Drank::Utils.get_container_service(data)
 
       # create service path if needed
       Drank::ZK.create(session, {
-        :path => File.join(@service_zk_path, get_container_service(data))
+        :path => File.join(@service_zk_path, service_name)
       })
 
-      service_path = File.join(@service_zk_path, get_container_service(data), @hostname)
+      service_path = File.join(@service_zk_path, service_name, @hostname)
 
       Drank::ZK.create(session, {
         :path => service_path
       })
 
       begin
-        path = get_container_zk_path(service_path, data)
-
-        puts path
+        path = Drank::Utils.get_container_zk_path(service_path, data)
 
         Drank::ZK.create(session, {
           :path => path,
@@ -115,56 +114,6 @@ module Drank
         Drank::Log.error("Could not create ZK node for container #{id}")
         Drank::Log.error(e)
         raise
-      end
-    end
-
-    def self.get_container_host_zk_path
-      hostname = Socket.gethostname
-      File.join(@container_host_zk_path, @hostname)
-    end
-
-    def self.get_container_zk_path(service_path, data)
-      service = get_container_service(data)
-      serial = get_container_serial_number(data)
-
-      File.join(service_path, data["ID"])
-    end
-
-    def self.get_container_host_data
-      Drank::Docker.get_version()
-    end
-
-    def self.get_container_service(data)
-      service_name = nil
-
-      data["Config"]["Env"].each do |var|
-        if var.include?("SERVICE=")
-          var[/\S\=(.*)/]
-          service_name = $1
-        end
-      end
-
-      if service_name == nil
-        raise("Could not parse service name from container #{data["ID"]}")
-      else
-        service_name
-      end
-    end
-
-    def self.get_container_serial_number(data)
-      serial = nil
-
-      data["Config"]["Env"].each do |var|
-        if var.include?("SERIALNUMBER=")
-          var[/\S\=(.*)/]
-          serial = $1
-        end
-      end
-
-      if serial == nil
-        raise("Could not parse serial number from container #{data["ID"]}")
-      else
-        serial
       end
     end
 

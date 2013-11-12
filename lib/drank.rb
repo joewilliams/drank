@@ -22,6 +22,7 @@ require 'drank/cli'
 require 'drank/service'
 require 'drank/zk'
 require 'drank/docker'
+require 'drank/utils'
 
 module Drank
   class << self

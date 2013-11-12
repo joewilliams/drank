@@ -3,7 +3,7 @@ module Drank
 
     def self.run()
       @hostname = Socket.gethostbyname(Socket.gethostname).first.gsub(".", "_")
-      @service_zk_path =File.join(Drank::Config.zk_prefix, "services")
+      @service_zk_path = File.join(Drank::Config.zk_prefix, "services")
       @container_host_zk_path = File.join(Drank::Config.zk_prefix, "container-hosts")
 
       Drank::Log.info("URI: #{Drank::Config.uri}")
@@ -12,6 +12,8 @@ module Drank
       Drank::Log.info("Hostname: #{@hostname}")
 
       zk_container_host_session = Zookeeper.new(Drank::Config.zookeeper)
+
+      Drank::ZK.check_connection(zk_container_host_session) # make sure we are connected to zk
 
       # setup initial zk paths
       zk_init(zk_container_host_session)
@@ -30,15 +32,19 @@ module Drank
         current_containers = []
 
         containers.each do |cntr|
-          unless container_sessions[cntr["Id"]]
+          if container_sessions[cntr["Id"]]
+            Drank::ZK.check_connection(container_sessions[cntr["Id"]]) # make sure each existing session is good
+          else
             Drank::Log.info("Found new container (#{cntr["Id"]})")
 
             begin
-              cntr_sess = Zookeeper.new(Drank::Config.zookeeper)
-              create_container(cntr_sess, cntr["Id"]) # sets data too
+              cntr_sess = Zookeeper.new(Drank::Config.zookeeper) # create new session
+              Drank::ZK.check_connection(cntr_sess) # make sure the session is good
+              create_container(cntr_sess, cntr["Id"]) # create container node with data
               container_sessions.store(cntr["Id"], cntr_sess) # finally store the session for use later
             rescue Exception => e
               Drank::Log.error("Could not create session for #{cntr["Id"]}")
+              Drank::Log.error(e)
               raise
             end
           end

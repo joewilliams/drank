@@ -45,5 +45,10 @@ module Drank
       end
     end
 
+    def self.check_connection(session)
+      unless session.connected?
+        raise("Not connected to ZK!")
+      end
+    end
   end
 end

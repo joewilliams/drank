@@ -9,8 +9,6 @@ module Drank
       File.join(path, data["ID"])
     end
 
-    private
-
     def self.get_container_service(data)
       service_name = nil
 

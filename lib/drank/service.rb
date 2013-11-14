@@ -36,7 +36,7 @@ module Drank
             Drank::Log.info("Found new container (#{cntr["Id"]})")
 
             begin
-              cntr_sess = = Drank::ZK.new() # create new session
+              cntr_sess = Drank::ZK.new() # create new session
               create_container(cntr_sess, cntr["Id"]) # create container node with data
               container_sessions.store(cntr["Id"], cntr_sess) # finally store the session for use later
             rescue Exception => e

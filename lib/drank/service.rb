@@ -63,7 +63,7 @@ module Drank
           end
         end
 
-        Drank::Log.info("Live sessions #{container_sessions.keys}")
+        Drank::Log.info("Live sessions #{container_sessions.keys.inspect}")
 
         # chill
         sleep(Drank::Config.interval)

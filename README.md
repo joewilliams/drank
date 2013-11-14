@@ -5,9 +5,10 @@ Drank is a service discovery daemon for Docker. Drank advertises container hosts
 
 #### Usage
 
-        $ drank
+        $ drank # uses defaults
 
-        $ drank -i 10 -u http://localhost:1234 -z localhost:2181
+        # start a service using docker and drank should detect it, using the SERVICE environment variable
+        $ sudo docker run -d -e SERVICE=testservice -i -t ubuntu /bin/bash
 
 
 ![](https://dl.dropboxusercontent.com/s/0dsib18j8jojoq8/2013-11-11%20at%205.50%20PM.png)

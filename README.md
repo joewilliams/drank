@@ -58,3 +58,7 @@ You'll need to `vagrant reload` to make it accessible. Then `vagrant ssh` to get
     $ cd /drank
     $ script/setup
     $ bin/drank
+
+#### License
+
+Drank is open source software available under the MIT License

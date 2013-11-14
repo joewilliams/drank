@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# lol, who needs bundler :laughing::boom::gun:
+grep add_runtime_dependency drank.gemspec | awk '{print $2}' | sed -e 's/,//' | xargs gem install --no-rdoc

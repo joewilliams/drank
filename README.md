@@ -1,6 +1,6 @@
 ### Drank
 
-Drank is a service discovery daemon for Docker. Drank advertises container hosts, containers and their service state to ZooKeeper for consumption. Drank is a "soft state" service. Stopping drank will cause the data it advertises to ZK to drop out. On start up drank will consume docker data again and repopulate ZK. Drank creates a session and ephemeral node for the container node where drank is running as well as a session and ephemeral node for each container.
+Drank is a service discovery daemon for Docker. Drank advertises container hosts, containers and their service state to ZooKeeper for consumption. Drank is a "soft state" service. Stopping drank will cause the data it advertises to ZK to drop out. On start up drank will consume docker data again and repopulate ZK. Drank creates a session and ephemeral node for the container host where drank is running as well as a session and ephemeral node for each container.
 
 #### Usage
 

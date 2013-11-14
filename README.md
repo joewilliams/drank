@@ -1,7 +1,6 @@
 ### Drank
 
-Drank is a service discovery daemon for Docker. Drank advertises container hosts, containers and their service state to ZooKeeper for consumption.
-
+Drank is a service discovery daemon for Docker. Drank advertises container hosts, containers and their service state to ZooKeeper for consumption. Drank is a "soft state" service. Stopping drank will cause the data it advertises to ZK to drop out. On start up drank will consume docker data again and repopulate ZK. Drank creates a session and ephemeral node for the container node where drank is running as well as a session and ephemeral node for each container.
 
 #### Usage
 
@@ -14,11 +13,17 @@ Drank is a service discovery daemon for Docker. Drank advertises container hosts
 ![](https://dl.dropboxusercontent.com/s/0dsib18j8jojoq8/2013-11-11%20at%205.50%20PM.png)
 
 
-If you want to get the list of container hosts currently available for running docker containers, get the children of `/docker/container-hosts`.
+#### Schema
 
-If you want to get the list of currently running containers for a specific service, get the children of `/docker/services/SERVICENAME/CONTAINERHOST`. Each child will be a container for said service.
+``````
+/docker/services
+/docker/services/SERVICENAME/CONTAINERHOST/CONTAINERID
 
-**Note that `/docker/services/SERVICENAME/CONTAINERHOST` is not an accurate listing of container hosts only use `/docker/container-hosts` for that**
+/docker/container-hosts
+/docker/container-hosts/CONTAINERHOST
+``````
+
+#### Consuming Drank data from Zookeeper
 
 ````````
 vagrant@precise64:~$ irb

@@ -14,7 +14,7 @@ loop do
   stop_count = 5
 
   start_count.times do
-    out = `sudo docker run -d -e -i -t ubuntu /bin/bash`
+    out = `sudo docker run -d -e SERVICE=testservice -i -t ubuntu /bin/bash`
     puts "starting: #{out}"
     sleep 1
   end

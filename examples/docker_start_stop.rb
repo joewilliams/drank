@@ -26,4 +26,6 @@ loop do
     puts "stopping: #{out}"
   end
 
+  sleep 3
+
 end

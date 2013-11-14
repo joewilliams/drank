@@ -1,6 +1,12 @@
 module Drank
   class ZK
 
+    def self.new()
+      session = Zookeeper.new(Drank::Config.zookeeper)
+      check_connection(session) # make sure we are connected to zk
+      session
+    end
+
     def self.create(session, options = {:recursive => true, :ephemeral => false})
       if options[:recursive]
         create_path_recursive(session, options)

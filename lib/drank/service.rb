@@ -11,9 +11,7 @@ module Drank
       Drank::Log.info("Interval: #{Drank::Config.interval}")
       Drank::Log.info("Hostname: #{@hostname}")
 
-      zk_container_host_session = Zookeeper.new(Drank::Config.zookeeper)
-
-      Drank::ZK.check_connection(zk_container_host_session) # make sure we are connected to zk
+      zk_container_host_session = Drank::ZK.new()
 
       # setup initial zk paths
       zk_init(zk_container_host_session)
@@ -38,8 +36,7 @@ module Drank
             Drank::Log.info("Found new container (#{cntr["Id"]})")
 
             begin
-              cntr_sess = Zookeeper.new(Drank::Config.zookeeper) # create new session
-              Drank::ZK.check_connection(cntr_sess) # make sure the session is good
+              cntr_sess = = Drank::ZK.new() # create new session
               create_container(cntr_sess, cntr["Id"]) # create container node with data
               container_sessions.store(cntr["Id"], cntr_sess) # finally store the session for use later
             rescue Exception => e

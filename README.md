@@ -36,3 +36,17 @@ irb(main):004:0> zk.get_children(:path => "/docker/container-hosts")[:children]
 irb(main):005:0> zk.get_children(:path => "/docker/services/testservice/precise64")[:children]
 => ["de659d7ceaa1a212fac17ad419289a451ab683d76ae68f0cf37adefa1a8bbb69", "38d63f37a4d9ab3269ac5993264575ce7e7219831f7360bcca3b41ccea507ab1"]
 ````````
+
+#### Hacking
+
+You'll need to run inside a Vagrant VM if you are on Mac OS X. After checking out it out in your development environment, make accessible from inside a guest with a bit like thi sin Vagrantfile:
+
+    Vagrant::VERSION >= "1.1.0" and Vagrant.configure("2") do |config|
+      config.vm.synced_folder "/path/to/drank", "/drank"
+    end
+
+You'll need to `vagrant reload` to make it accessible. Then `vagrant ssh` to get inside.
+
+    $ cd /drank
+    $ script/setup
+    $ bin/drank
